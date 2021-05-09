@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  restaurant-service:
+    container_name: restaurant-service
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./development.env
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    external: true

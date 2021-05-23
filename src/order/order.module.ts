@@ -6,6 +6,7 @@ import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     ClientsModule.registerAsync([
       {
         name: ORDER_SERVICE,

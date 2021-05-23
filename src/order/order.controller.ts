@@ -8,7 +8,6 @@ export class OrderController {
   @EventPattern({ event: 'order_updated' })
   async handleOrderUpdated(data: Record<string, unknown>) {
     console.log('handleOrderUpdated');
-    console.log(data);
-    this.orderService.getHello();
+    this.orderService.orderUpdated(data);
   }
 }

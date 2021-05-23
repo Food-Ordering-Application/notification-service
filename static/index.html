@@ -11,6 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-simple-notify/dist/vue-simple-notify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/4.2.2/pusher.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.17.1/axios.js"></script>
 </head>
 
 <body>
@@ -19,52 +22,92 @@
             <alerts-component :items="alerts"></alerts-component>
         </section>
         <section class="chat">
-            <h1>Websockets Tester</h1>
-            <form>
-                <input v-model="text" type="text" />
-                <button type="submit" @click.prevent="sendChatMessage()">Send</button>
-            </form>
-            <!-- Tabs -->
-            <div class="tab-row">
-                <button class="tab-btn" :class="{ active: activeRoom == 'general' }" @click="activeRoom = 'general'">General</button>
-                <button class="tab-btn" :class="{ active: activeRoom == 'typescript' }" @click="activeRoom = 'typescript'">TypeScript</button>
-                <button class="tab-btn" :class="{ active: activeRoom == 'nestjs' }" @click="activeRoom = 'nestjs'">NestJS</button>
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="container-fluid">
+
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">
+                            <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span> Websockets Tester
+                        </a>
+                    </div>
+
+                </div>
+            </nav>
+            <div class="container" id="app">
+                <main>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- <form method="post" action="/comments">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="message" placeholder="Type your comments">
+                                </div>
+
+                                <div class="form-group">
+                                    <button class="btn btn-success" type="submit">Submit</button>
+                                </div>
+                            </form> -->
+                            <form>
+                                <input v-model="text" type="text" />
+                                <button class="btn btn-success" type="submit" @click.prevent="sendChatMessage()">Send</button>
+                            </form>
+                        </div>
+                        <div class="col-md-8">
+                            <!-- Tabs -->
+                            <div class="tab-row">
+                                <button class="tab-btn btn btn-success" :class="{ active: activeRoom == 'general' }" @click="activeRoom = 'general'">General</button>
+                                <button class="tab-btn btn btn-success" :class="{ active: activeRoom == 'typescript' }" @click="activeRoom = 'typescript'">TypeScript</button>
+                                <button class="tab-btn btn btn-success" :class="{ active: activeRoom == 'nestjs' }" @click="activeRoom = 'nestjs'">NestJS</button>
+                            </div>
+                            <div class="tab-row">
+                                Status: {{ isMemberOfActiveRoom ? 'Joined' : 'NOT Joined' }} <button class="btn btn-success" @click="toggleRoomMembership()">{{ isMemberOfActiveRoom ? 'Leave' : 'Join' }}</button>
+                            </div>
+
+                            <!-- /Tabs -->
+
+                        </div>
+                        <div class="col-md-8">
+                            <p>
+                                <ul>
+                                    <li v-for="msg of messages[activeRoom]">
+                                        <strong>{{ msg.sender }}:</strong> {{ msg.message }}
+                                    </li>
+                                </ul>
+                            </p>
+                        </div>
+                    </div>
+                </main>
             </div>
-            <div class="tab-row">
-                Status: {{ isMemberOfActiveRoom ? 'Joined' : 'NOT Joined' }} <button @click="toggleRoomMembership()">{{ isMemberOfActiveRoom ? 'Leave' : 'Join' }}</button>
-            </div>
-            <p>
-                <ul>
-                    <li v-for="msg of messages[activeRoom]">
-                        <strong>{{ msg.sender }}:</strong> {{ msg.message }}
-                    </li>
-                </ul>
-            </p>
-            <!-- /Tabs -->
         </section>
     </main>
     <script>
         Vue.component('alerts-component', VueSimpleNotify.VueSimpleNotify);
         var app = new Vue({
             el: '#v-app',
-            data: {
-                username: '',
-                text: '',
-                messages: {
-                    general: [],
-                    typescript: [],
-                    nestjs: []
-                },
-                socket: {
-                    chat: null,
-                    alerts: null
-                },
-                alerts: [],
-                activeRoom: 'general',
-                rooms: {
-                    general: false,
-                    typescript: false,
-                    nestjs: false
+            data() {
+                return {
+
+                    username: '',
+                    text: '',
+                    messages: {
+                        general: [],
+                        typescript: [],
+                        nestjs: []
+                    },
+                    socket: {
+                        chat: null,
+                        alerts: null
+                    },
+                    alerts: [],
+                    activeRoom: 'general',
+                    rooms: {
+                        general: false,
+                        typescript: false,
+                        nestjs: false
+                    },
+                    comments: [],
+                    comment: {
+                        message: ''
+                    }
                 }
             },
             methods: {
@@ -92,6 +135,11 @@
                     } else {
                         this.socket.chat.emit('joinRoom', this.activeRoom);
                     }
+                },
+                submitComment() {
+                    axios.post('/comments', this.comment).then((data) => {
+                        console.log(data)
+                    })
                 }
             },
             computed: {
@@ -100,9 +148,10 @@
                 }
             },
             created() {
+                const PORT = 8081
                 this.username = prompt('Enter your username:');
 
-                this.socket.chat = io('http://localhost:3000/orders');
+                this.socket.chat = io(`http://localhost:${PORT}/orders`);
                 this.socket.chat.on('orderToClient', (msg) => {
                     this.receiveChatMessage(msg);
                 });
@@ -116,10 +165,22 @@
                     this.rooms[room] = false;
                 });
 
-                this.socket.alerts = io('http://localhost:3000/alert');
+                this.socket.alerts = io(`http://localhost:${PORT}/alert`);
                 this.socket.alerts.on('alertToClient', (msg) => {
                     this.receiveAlertMessage(msg);
                 });
+
+                let pusher = new Pusher('PUSHER_KEY', {
+                    cluster: 'PUSHER_CLUSTER',
+                    encrypted: true
+                });
+                const channel = pusher.subscribe('comment');
+                channel.bind('comment_data', data => {
+                    this.comments.push(data);
+                })
+
+
+
             }
         });
     </script>

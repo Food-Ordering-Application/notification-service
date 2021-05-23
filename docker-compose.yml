@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  restaurant-service:
-    container_name: restaurant-service
+  notification-service:
+    container_name: notification-service
     build:
       context: .
       target: development
@@ -13,6 +13,8 @@ services:
       - ./development.env
     networks:
       - my-network
+    command: [sh, -c, "cd /usr/src/app && npm run start:dev"]    
+    
 
 networks:
   my-network:

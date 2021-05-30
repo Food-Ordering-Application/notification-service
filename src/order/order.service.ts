@@ -44,6 +44,8 @@ export class OrderService {
       .catch((error) => {
         console.error('Error:', error);
       });
+
+    channel.pusher.trigger(interestName, 'new-order', payload);
     return 'Notification Order Hello World!';
   }
 
@@ -51,25 +53,25 @@ export class OrderService {
     const restaurantId = payload.restaurantId;
     const orderId = payload.id;
     if (!restaurantId || !orderId) return;
-    const saleChannel = `orders_${restaurantId}`;
-    const posChannel = `order_${orderId}`;
+    const posChannel = `orders_${restaurantId}`;
+    const saleChannel = `order_${orderId}`;
 
     const order = {
       id: payload.id,
       status: payload.status,
     };
 
-    console.log(event.toString, saleChannel, posChannel);
-    channel.pusher.trigger(saleChannel, 'order-status', { order });
+    // console.log(event.toString, saleChannel, posChannel);
+    // channel.pusher.trigger(saleChannel, 'order-status', { order });
     switch (event) {
       case (EOrderEvent.restaurantAccepted, EOrderEvent.driverCompleted):
         // TODO: Handle event
-        channel.pusher.trigger(saleChannel, 'order-status', { order });
-        channel.pusher.trigger(posChannel, 'order-status', payload);
+        channel.pusher.trigger(posChannel, 'order-status', { order });
+        channel.pusher.trigger(saleChannel, 'order-status', payload);
         break;
       case (EOrderEvent.driverAccepted, EOrderEvent.driverPickedUp):
         // TODO: Handle event
-        channel.pusher.trigger(posChannel, 'order-status', payload);
+        channel.pusher.trigger(saleChannel, 'order-status', payload);
         break;
     }
 

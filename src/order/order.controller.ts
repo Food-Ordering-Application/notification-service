@@ -16,6 +16,11 @@ export class OrderController {
     console.log('orderConfirmedByRestaurantEvent');
     this.orderService.orderProcessing(EOrderEvent.restaurantAccepted, data);
   }
+  @EventPattern('orderHasBeenCancelledEvent')
+  async handleOrderHasBeenCancelledEvent(data: Record<string, unknown>) {
+    console.log('orderHasBeenCancelledEvent');
+    this.orderService.orderProcessing(EOrderEvent.restaurantCancelled, data);
+  }
   @EventPattern('orderHasBeenAssignedToDriverEvent')
   async handleOrderHasBeenAssignedToDriverEvent(data: Record<string, unknown>) {
     console.log('orderHasBeenAssignedToDriverEvent');

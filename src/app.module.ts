@@ -7,6 +7,7 @@ import { AlertGateway } from './alert/alert.gateway';
 import { AlertController } from './alert/alert.controller';
 import { CommentsController } from './comments/comments.controller';
 import { CommentService } from './comments/comments.service';
+import { DeliveryModule } from './delivery/delivery.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CommentService } from './comments/comments.service';
       // envFilePath: '.env',
     }),
     OrderModule,
+    DeliveryModule,
   ],
   controllers: [AlertController, CommentsController],
   providers: [AlertGateway, CommentService],

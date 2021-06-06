@@ -60,19 +60,43 @@ export class OrderService {
       id: payload.id,
       status: payload.status,
     };
-
-    // console.log(event.toString, saleChannel, posChannel);
-    // channel.pusher.trigger(saleChannel, 'order-status', { order });
+    const orderDelivery = payload.delivery;
+    const orderChanged = {
+      id: payload.id,
+      status: payload.status,
+      delivery: {
+        id: orderDelivery.id,
+        customerId: orderDelivery.customerId,
+        distance: orderDelivery.distance,
+        shippingFee: orderDelivery.shippingFee,
+        status: orderDelivery.status,
+        deliveredAt: orderDelivery.deliveredAt,
+        expectedDeliveryTime: orderDelivery.expectedDeliveryTime,
+      },
+    };
+    console.log(event, saleChannel, posChannel, orderChanged, payload);
     switch (event) {
-      case (EOrderEvent.restaurantAccepted, EOrderEvent.driverCompleted):
+      case EOrderEvent.driverCompleted:
+      case EOrderEvent.restaurantAccepted: {
         // TODO: Handle event
+        // console.log(
+        //   `EOrderEvent.restaurantAccepted, EOrderEvent.driverCompleted`,
+        //   event,
+        // );
         channel.pusher.trigger(posChannel, 'order-status', { order });
         channel.pusher.trigger(saleChannel, 'order-status', payload);
         break;
-      case (EOrderEvent.driverAccepted, EOrderEvent.driverPickedUp):
+      }
+      case EOrderEvent.driverPickedUp:
+      case EOrderEvent.driverAccepted: {
         // TODO: Handle event
+        // console.log(
+        //   `EOrderEvent.driverAccepted, EOrderEvent.driverPickedUp`,
+        //   event,
+        // );
         channel.pusher.trigger(saleChannel, 'order-status', payload);
         break;
+      }
     }
 
     return 'Notification Order Hello World!';

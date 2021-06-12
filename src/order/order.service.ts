@@ -77,7 +77,6 @@ export class OrderService {
     console.log(event, saleChannel, posChannel, order, payload);
     switch (event) {
       case EOrderEvent.restaurantAccepted:
-      case EOrderEvent.restaurantReady:
       case EOrderEvent.driverPickedUp:
       case EOrderEvent.driverCompleted: {
         // TODO: Handle event
@@ -87,6 +86,12 @@ export class OrderService {
         // );
         channel.pusher.trigger(posChannel, 'order-status', { order });
         channel.pusher.trigger(saleChannel, 'order-status', payload);
+        break;
+      }
+      case EOrderEvent.restaurantReady: {
+        const driverId = orderDelivery.driverId;
+        channel.pusher.trigger(driverId, 'order-status', { order });
+        channel.pusher.trigger(posChannel, 'order-status', { order });
         break;
       }
       case EOrderEvent.driverAccepted: {

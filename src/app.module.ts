@@ -8,7 +8,7 @@ import { AlertController } from './alert/alert.controller';
 import { CommentsController } from './comments/comments.controller';
 import { CommentService } from './comments/comments.service';
 import { DeliveryModule } from './delivery/delivery.module';
-
+import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,6 +16,7 @@ import { DeliveryModule } from './delivery/delivery.module';
     }),
     OrderModule,
     DeliveryModule,
+    UserModule,
   ],
   controllers: [AlertController, CommentsController],
   providers: [AlertGateway, CommentService],

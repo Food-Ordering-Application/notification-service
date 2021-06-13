@@ -10,6 +10,6 @@ export class UserService {
     const data = {
       mainBalance,
     };
-    channel.pusher.trigger(driverId, 'order-status', data);
+    channel.pusher.trigger(driverId, 'balance-changed', data);
   }
 }

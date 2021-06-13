@@ -89,9 +89,10 @@ export class OrderService {
         break;
       }
       case EOrderEvent.restaurantReady: {
-        const driverId = orderDelivery.driverId;
-        channel.pusher.trigger(driverId, 'order-status', { order });
         channel.pusher.trigger(posChannel, 'order-status', { order });
+        const driverId = orderDelivery.driverId;
+        if (!driverId) return;
+        channel.pusher.trigger(driverId, 'order-status', { order });
         break;
       }
       case EOrderEvent.driverAccepted: {

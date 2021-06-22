@@ -11,4 +11,10 @@ export class DeliveryController {
     console.log('dispatchDriverEvent');
     this.deliveryService.dispatchDriver(data);
   }
+
+  @EventPattern('deliveryLocationUpdateEvent')
+  async handleDeliveryLocationUpdateEvent(data: Record<string, unknown>) {
+    console.log('deliveryLocationUpdateEvent');
+    this.deliveryService.deliveryProcessing(EDeliverEvent.driverMoving, data);
+  }
 }

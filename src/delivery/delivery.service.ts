@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { beams, channel } from '../config';
-import { EDeliverEvent } from './interfaces';
+import { EDeliverEvent, OrderLocationUpdateEventPayload } from './interfaces';
 
 @Injectable()
 export class DeliveryService {
@@ -45,21 +45,14 @@ export class DeliveryService {
       });
   }
   deliveryProcessing(event: EDeliverEvent, payload: any) {
-    const restaurantId = payload.restaurantId;
-    const orderId = payload.id;
-    if (!restaurantId || !orderId) return;
-    const posChannel = `orders_${restaurantId}`;
+    const orderId = payload.orderId;
+    const driverId = payload.driverId;
+    if (!driverId || !orderId) return;
     const saleChannel = `order_${orderId}`;
-
-    const order = {
-      id: payload.id,
-      status: payload.status,
-    };
 
     // console.log(event.toString, saleChannel, posChannel);
     // channel.pusher.trigger(saleChannel, 'order-status', { order });
-    switch (
-      event
+    switch (event) {
       //   case (EOrderEvent.restaurantAccepted, EOrderEvent.driverCompleted):
       //     // TODO: Handle event
       //     channel.pusher.trigger(posChannel, 'order-status', { order });
@@ -69,7 +62,14 @@ export class DeliveryService {
       //     // TODO: Handle event
       //     channel.pusher.trigger(saleChannel, 'order-status', payload);
       //     break;
-    ) {
+      case EDeliverEvent.driverMoving:
+        const { latitude, longitude } =
+          payload as OrderLocationUpdateEventPayload;
+        if (latitude && longitude) {
+          const data = { latitude, longitude };
+          channel.pusher.trigger(saleChannel, 'delivery-location', data);
+        }
+        break;
     }
 
     return 'Notification Order Hello World!';

@@ -2,4 +2,12 @@ enum EDeliverEvent {
   driverDispatched = 0,
   driverMoving,
 }
-export { EDeliverEvent };
+
+interface OrderLocationUpdateEventPayload {
+  orderId: string;
+  driverId: string;
+  latitude: number;
+  longitude: number;
+}
+
+export { EDeliverEvent, OrderLocationUpdateEventPayload };

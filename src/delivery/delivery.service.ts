@@ -7,9 +7,13 @@ export class DeliveryService {
   dispatchDriver(payload: any) {
     const orderId = payload.orderId;
     const driverId = payload.driverId;
+    const estimatedArrivalTime = payload?.estimatedArrivalTime;
+    const totalDistance = payload?.totalDistance;
     if (!driverId || !orderId) return;
     const data: any = {
       orderId,
+      estimatedArrivalTime,
+      totalDistance,
     };
     beams.client
       .publishToInterests([driverId], {
@@ -63,8 +67,10 @@ export class DeliveryService {
       //     channel.pusher.trigger(saleChannel, 'order-status', payload);
       //     break;
       case EDeliverEvent.driverMoving:
-        const { latitude, longitude } =
-          payload as OrderLocationUpdateEventPayload;
+        const {
+          latitude,
+          longitude,
+        } = payload as OrderLocationUpdateEventPayload;
         if (latitude && longitude) {
           const data = { latitude, longitude };
           channel.pusher.trigger(saleChannel, 'delivery-location', data);
